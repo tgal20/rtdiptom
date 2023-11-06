@@ -61,7 +61,13 @@ rm ./environment.yml
 cp ./$RTDIP_DIR/environment.yml ./
 find ./environment.yml -type f -exec sed -i 's/rtdip-sdk/lfenergy/g' {} \;
 conda  env create -f environment.yml
-
+echo '*****************************************'
+echo '*****************************************'
+echo 'packages installed:'
+conda env list
+conda list -n lfenergy
+echo '*****************************************'
+echo '*****************************************'
 #
 # JDK
 echo "JDK jdk-17.0.2 ***********************************" 
