@@ -238,14 +238,13 @@ export HOST="0.0.0.0"
 echo "Going to install dagster"
 ## conda install -y dagster=1.5.6
 echo "Going to install dagster"
-yes | pip install dagster=1.5.5
-yes | pip install dagster==1.5.5
-yes | pip install dagster-graphql==1.5.5
-yes | pip install dagster-pipes==1.5.5
-yes | pip install dagster-pyspark==0.21.5
-yes | pip install dagster-spark==0.21.5
-yes | pip install dagster-webserver==1.5.5
-yes | pip install dagster-postgres==0.21.6
+conda install -y dagster=1.5.5
+#yes | conda install dagster-graphql==1.5.5
+#yes | conda install dagster-pipes==1.5.5
+#yes | conda install dagster-pyspark==0.21.5
+#yes | conda install dagster-spark==0.21.5
+conda install -y dagster-webserver==1.5.5
+conda install -y dagster-postgres==0.21.6
 ​
 echo "Going to run Jupyter on host:$HOST/port:$NOTEBOOK_PORT"
 jupyter notebook --no-browser --port=$NOTEBOOK_PORT --ip=$HOST --NotebookApp.token='' --NotebookApp.password=''  --allow-root &
