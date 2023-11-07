@@ -238,12 +238,12 @@ export HOST="0.0.0.0"
 echo "Going to install dagster"
 ## conda install -y dagster=1.5.6
 echo "Going to install dagster"
-conda install -y dagster=1.5.5
+conda install -y dagster=1.5.6
 #yes | conda install dagster-graphql==1.5.5
 #yes | conda install dagster-pipes==1.5.5
 #yes | conda install dagster-pyspark==0.21.5
 #yes | conda install dagster-spark==0.21.5
-conda install -y dagster-webserver==1.5.5
+conda install -y dagster-webserver==1.5.6
 conda install -y dagster-postgres==0.21.6
 ​
 echo "Going to run Jupyter on host:$HOST/port:$NOTEBOOK_PORT"
@@ -255,5 +255,6 @@ pwd
 echo "ls dagster_home"
 ls
 echo "ls end"
-dagster-webserver -h $DAGSTER_HOME -p $DAGSTER_PORT
+# dagster-webserver -h $HOST -p $DAGSTER_PORT
+dagster dev -h $HOST -p $DAGSTER_PORT -f $CONDA_ENV_HOME/MISO_pipeline_sample_dagster.py
 sleep infinity
