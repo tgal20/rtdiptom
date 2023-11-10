@@ -1,11 +1,35 @@
 version: "3.7"
 
 services:
+
+  # This service runs the postgres DB used by dagster for run storage, schedule storage,
+  # and event log storage.
+  docker_dagster_postgresql:
+    image: postgres:11
+    container_name: docker_dagster_postgresql
+    environment:
+      POSTGRES_USER: "postgres_user"
+      POSTGRES_PASSWORD: "postgres_password"
+      POSTGRES_DB: "postgres_db"
+    networks:
+      - docker_dagster_network
   dagster:
-    image: tomlewis20/victor_test:latest
+    image: rtdip:Dockerfile
     ports:
+      - 8080:8080
       - 3000:3000
     environment:
+      DAGSTER_POSTGRES_USER: "postgres_user"
+      DAGSTER_POSTGRES_PASSWORD: "postgres_password"
+      DAGSTER_POSTGRES_DB: "postgres_db"
+      DAGSTER_CURRENT_IMAGE: "rtdip:Dockerfile"
       DAGSTER_HOME: /opt/dagster/dagster_home
     volumes:
       - ./dagster_home:/opt/dagster/dagster_home
+    networks:
+      - docker_dagster_network
+networks:
+  docker_dagster_network:
+    driver: bridge
+    name: docker_dagster_network
+
