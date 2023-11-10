@@ -1,6 +1,0 @@
-2023-10-30 14:04:05 +0000 - dagster - DEBUG - __ASSET_JOB - 431adf5d-f2e9-49db-bd2f-c2b169e2a20e - 292 - LOGS_CAPTURED - Started capturing logs in process (pid: 292).
-2023-10-30 14:04:05 +0000 - dagster - DEBUG - __ASSET_JOB - 431adf5d-f2e9-49db-bd2f-c2b169e2a20e - 292 - topstory_ids - STEP_START - Started execution of step "topstory_ids".
-2023-10-30 14:04:05 +0000 - dagster - DEBUG - __ASSET_JOB - 431adf5d-f2e9-49db-bd2f-c2b169e2a20e - 292 - topstory_ids - STEP_OUTPUT - Yielded output "result" of type "Nothing". (Type check passed).
-2023-10-30 14:04:06 +0000 - dagster - DEBUG - __ASSET_JOB - 431adf5d-f2e9-49db-bd2f-c2b169e2a20e - 292 - topstory_ids - ASSET_MATERIALIZATION - Materialized value topstory_ids.
-2023-10-30 14:04:06 +0000 - dagster - DEBUG - __ASSET_JOB - 431adf5d-f2e9-49db-bd2f-c2b169e2a20e - 292 - topstory_ids - HANDLED_OUTPUT - Handled output "result" using IO manager "io_manager"
-2023-10-30 14:04:06 +0000 - dagster - DEBUG - __ASSET_JOB - 431adf5d-f2e9-49db-bd2f-c2b169e2a20e - 292 - topstory_ids - STEP_SUCCESS - Finished execution of step "topstory_ids" in 837ms.
