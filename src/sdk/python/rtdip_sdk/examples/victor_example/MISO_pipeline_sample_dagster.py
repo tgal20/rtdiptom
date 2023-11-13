@@ -5,13 +5,21 @@ from rtdip_sdk.pipelines.sources import MISODailyLoadISOSource
 from pyspark.sql import SparkSession
 
 from dagster import asset
+
 import shutil
+import os
 
 
-@asset  # add the asset decorator to tell Dagster this is an asset
+@asset
 def run_miso_ingest():
-    # First Clear local files
-    shutil.rmtree("spark-warehouse")
+
+    # First: Clear local files
+    spark_warehouse_local_path: str = "spark-warehouse"
+    if os.path.exists(spark_warehouse_local_path) and os.path.isdir(spark_warehouse_local_path):
+        try:
+            shutil.rmtree("spark-warehouse")
+        except Exception as ex:
+            print(str(ex))
 
     spark = (
         SparkSession.builder.config(
