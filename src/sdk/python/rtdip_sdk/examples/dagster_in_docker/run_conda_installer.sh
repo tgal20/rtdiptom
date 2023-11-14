@@ -10,7 +10,7 @@ DEPLOYER_TMP_DIR=$(echo ${TMPDIR:-/tmp}"/DEPLOYER")
 MINICONDA_NAME=miniconda
 MINICONDA_PATH=$HOME/$MINICONDA_NAME/
 PATH=$MINICONDA_PATH/bin:$PATH
-CONDA_ENV="lfenergy"
+CONDA_ENV="local_scheduled"
 CONDA_ENV_HOME=$(pwd)/apps/$CONDA_ENV
 mkdir -p $CONDA_ENV_HOME
 CWD=$(pwd)
@@ -59,7 +59,7 @@ echo "Creating the environment with [CONDA]: CONDA LIBMAMBA SOLVER"
 ## Copying the env file
 rm ./environment.yml
 cp ./$RTDIP_DIR/environment.yml ./
-find ./environment.yml -type f -exec sed -i 's/rtdip-sdk/lfenergy/g' {} \;
+find ./environment.yml -type f -exec sed -i 's/rtdip-sdk/local_scheduled/g' {} \;
 conda  env create -f environment.yml
 
 #
@@ -266,16 +266,23 @@ chmod +x $CONDA_ENVIRONMENT_FILE_NAME
 echo "export SPARK_HOME=$SPARK_HOME"
 echo "NOTEBOOK_PORT: $NOTEBOOK_PORT"
 # Install and Run Notebook
-## conda install -y notebook=6.5.4
+conda install -y notebook=6.5.4
 export NOTEBOOK_PORT="8080"
 # Install and run Dagster
 echo "Going to install dagster"
-conda install -y dagster=1.5.6
-conda install -y dagster-mysql=1.5.6
+conda install -y dagster-mysql=1.5.5
+conda install -y dagster=1.5.5
+conda install -y dagster-graphql=1.5.5
+conda install -y dagster-pipes=1.5.5
+pip install dagster-pyspark==0.21.5
+conda install -y dagster-spark=0.21.5
+echo "Going to install pydantic"
+pip install pydantic==2.4.2
+pip install pydantic_core==2.10.1
 echo "Going to install dagster-webserver"
-yes | pip install dagster-webserver==1.5.6
-## echo "Going to run Jupyter on host:$HOST/port:$NOTEBOOK_PORT"
-## jupyter notebook --no-browser --port=$NOTEBOOK_PORT --ip=$HOST --NotebookApp.token='' --NotebookApp.password=''  --allow-root &
+yes | pip install dagster-webserver==1.5.5
+echo "Going to run Jupyter on host:$HOST/port:$NOTEBOOK_PORT"
+jupyter notebook --no-browser --port=$NOTEBOOK_PORT --ip=$HOST --NotebookApp.token='' --NotebookApp.password=''  --allow-root &
 echo "Going to run Dagster on host:$HOST/port:$DAGSTER_PORT "
 echo "Running Dagster daemon"
 dagster-daemon run > dagster_daemon_logs.txt 2>&1 &
@@ -285,4 +292,3 @@ echo "Running Webserver"
 dagster-webserver -h $HOST -p $DAGSTER_PORT > dagster_webserver_logs.txt 2>&1 &
 tail -f *.txt
 sleep infinity
-

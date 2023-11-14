@@ -29,7 +29,7 @@ my_pyspark_resource = pyspark_resource.configured(
                     "spark.jars.packages": packages,
                     "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension", 
                     "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
-                    "spark.sql.warehouse.dir": "/Users/tom.lewis/Library/CloudStorage/OneDrive-Shell/Documents/github/rtdiptom/src/sdk/python/rtdip_sdk/examples/dagster_in_docker/dagster_src/edgex_test_warehouse"
+                    "spark.sql.warehouse.dir": "/home/rtdip/apps/local_scheduled/edgex_test_warehouse"
                     }
     }
 )
@@ -68,7 +68,6 @@ def pipeline(context):
     spark = context.resources.pyspark.spark_session
     source = SparkEventhubSource(spark, ehConf).read_batch()
     transformer = BinaryToStringTransformer(source, "body", "body").transform()
-    transformer = FledgeOPCUAJsonToPCDMTransformer(transformer, "body").transform()
     SparkDeltaDestination(transformer, {}, "edgex_test", "overwrite").write_batch()
 
 @graph
@@ -83,7 +82,7 @@ fledge_pipeline_job = fledge_pipeline.to_job(
 )
 
 # Define Schedule
-@schedule(job=fledge_pipeline_job, cron_schedule="* * * * *", default_status=DefaultScheduleStatus.RUNNING)
+@schedule(job=fledge_pipeline_job, cron_schedule="* * * * *", execution_timezone="Europe/London", default_status=DefaultScheduleStatus.RUNNING)
 def process_data_schedule(
     context: ScheduleEvaluationContext,
     date_formatter: DateFormatter,
@@ -101,5 +100,3 @@ defs = Definitions(
     schedules=[process_data_schedule],
     resources={"date_formatter": DateFormatter(format="%Y-%m-%d")}
 )
-
-# dagster dev -f local_scheduled.py

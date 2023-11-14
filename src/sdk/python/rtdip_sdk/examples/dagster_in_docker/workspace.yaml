@@ -1,4 +1,4 @@
 # workspace.yaml
 
 load_from:
-  - python_file: MISO_pipeline_sample_dagster.py
+  - python_file: local_scheduled.py
