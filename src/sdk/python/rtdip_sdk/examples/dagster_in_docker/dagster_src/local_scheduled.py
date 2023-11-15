@@ -66,7 +66,7 @@ ehConf = {
 @op(required_resource_keys={"pyspark"})
 def pipeline(context):
     spark = context.resources.pyspark.spark_session
-    source = SparkEventhubSource(spark, ehConf).read_batch()
+    source = SparkEventhubSource(spark, ehConf).read_batch() # change to read/write stream
     transformer = BinaryToStringTransformer(source, "body", "body").transform()
     SparkDeltaDestination(transformer, {}, "edgex_test", "overwrite").write_batch()
 
