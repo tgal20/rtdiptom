@@ -17,6 +17,14 @@ from rtdip_sdk.pipelines.transformers.spark.binary_to_string import BinaryToStri
 from rtdip_sdk.pipelines.transformers.spark.fledge_opcua_json_to_pcdm import FledgeOPCUAJsonToPCDMTransformer
 from rtdip_sdk.pipelines.destinations.spark.delta import SparkDeltaDestination
 
+from pyspark.sql.types import StructType, StructField, StringType, TimestampType, DoubleType
+
+from pyspark.sql.functions import from_json
+
+from pi_omf import SparkPIOMFDestination
+
+import os
+piomf_password = os.getenv('PIOMF_PASSWORD')
 class DateFormatter(ConfigurableResource):
     format: str
 
@@ -29,13 +37,11 @@ my_pyspark_resource = pyspark_resource.configured(
                     "spark.jars.packages": packages,
                     "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension", 
                     "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
-                    "spark.sql.warehouse.dir": "/home/rtdip/apps/local_scheduled/edgex_test_warehouse"
+                    "spark.sql.warehouse.dir": "/home/rtdip/apps/local_scheduled/edgex_test_warehouse",
+                    "spark.jars.excludes": "net.minidev:json-smart,com.nimbusds:lang-tag"
                     }
     }
 )
-
-eventhub_connection_string = "Endpoint=sb://az-as-ehns-ex-n-seq00039-ew-dev-gen-01.servicebus.windows.net/;SharedAccessKeyName=az-as-ehap-ex-n-seq00039-ew-dev-gen-03;SharedAccessKey=tW2k0JGqgjr577/4l/8bSz8S7V+bkSYA0jFgmjwKMUc=;EntityPath=az-as-eh-ex-n-seq00039-ew-dev-gen-03"
-eventhub_consumer_group = "$Default"
 
 startOffset = "-1"
 endTime = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
@@ -54,21 +60,39 @@ endingEventPosition = {
   "isInclusive": True
 }
 
-ehConf = {
-'eventhubs.connectionString' : eventhub_connection_string,
-'eventhubs.consumerGroup': eventhub_consumer_group,
-'eventhubs.startingPosition' : json.dumps(startingEventPosition),
-'eventhubs.endingPosition' : json.dumps(endingEventPosition),
-'maxEventsPerTrigger': 1000
-}
+ehConf  = {
+    "eventhubs.connectionString": "Endpoint=sb://az-as-ehns-ex-n-seq00039-ew-dev-gen-02.servicebus.windows.net/;SharedAccessKeyName=send;SharedAccessKey=qwQX5Kqv2NSxkQ+gt053u1ztv2nDpIBkq+AEhD088Qo=;EntityPath=az-as-eh-ex-n-seq00039-ew-dev-gen-09",
+    "eventhubs.startingPosition": json.dumps({"offset": "0", "seqNo": -1, "enqueuedTime": None, "isInclusive": True}),
+    }
+
+json_schema = StructType([
+    StructField("TagName", StringType(), True),
+    StructField("EventTime", TimestampType(), True),
+    StructField("Status", StringType(), True),
+    StructField("Value", DoubleType(), True),
+    StructField("ValueType", StringType(), True),
+    StructField("ChangeType", StringType(), True),
+])
 
 # Pipeline op
 @op(required_resource_keys={"pyspark"})
 def pipeline(context):
     spark = context.resources.pyspark.spark_session
-    source = SparkEventhubSource(spark, ehConf).read_batch() # change to read/write stream
+    source = SparkEventhubSource(spark, ehConf).read_batch() # change to read/write stream. Research streaming in dagster
     transformer = BinaryToStringTransformer(source, "body", "body").transform()
-    SparkDeltaDestination(transformer, {}, "edgex_test", "overwrite").write_batch()
+    transformer = transformer.withColumn("body", from_json("body", json_schema))
+    transformer = transformer.select("body.*")
+    SparkPIOMFDestination(
+        data=transformer,
+        options={},
+        url="https://aewnw01528piwa1.europe.shell.com/piwebapi",
+        username="piwa-euaccpicoll-s",
+        password=piomf_password,
+        message_length=1,
+        batch_size=100000,
+        compression=False,
+        create_type_message=True).write_batch()
+
 
 @graph
 def fledge_pipeline():

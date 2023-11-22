@@ -6,6 +6,7 @@ from dagster import (
     load_assets_from_modules,
     FilesystemIOManager,  # Update the imports at the top of the file to also include this
 )
+
 from . import assets
 from dagster_duckdb_pandas import DuckDBPandasIOManager
 all_assets = load_assets_from_modules([assets])
@@ -44,3 +45,4 @@ defs = Definitions(
         "hackernews_api": datagen,  # Add the newly-made resource here
     },
 )
+

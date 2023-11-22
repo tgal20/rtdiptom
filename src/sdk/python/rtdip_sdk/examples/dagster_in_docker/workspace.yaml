@@ -2,3 +2,5 @@
 
 load_from:
   - python_file: local_scheduled.py
+#  - python_file: pi_omf.py
+#  - python_file: rest_api.py
